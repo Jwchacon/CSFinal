@@ -1,1 +1,269 @@
+var score = 0; //variable to keep track of score
+var numCars = 100; //Variable for number of cars that pass on the screen
+var carSpeed = round(random(1, 10)); //Variable for random speed input for cars
+var currentScene; //Variable for keeping track of scene
+var gamePaused = false; //variable for keeping track of whether game is paused or not
+var addscore = true; //variable for knowing when to add to score
+var Bitmoji = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.img = getImage("creatures/Hopper-Happy");
+    this.Cars = 0;
+}; //constructor  function for bitmoji
+var Cars = []; //array for pushing new cars into it
+var car = function(x, y) {
+    this.x = x;
+    this.y = y;
+};//Constructor function for cars
 
+var drawMYHEAD = function(meX, meY, h) {
+    
+    var p = h/100;
+    noStroke();
+    fill(250, 198, 125);
+    ellipse(meX+199*p, meY+199*p, 100*p, 130*p);//my head
+    stroke(0, 0, 0);
+    fill(250, 198, 125);
+    arc(meX+201*p, meY+213*p, 18*p, 17*p, 376, 524);//Nose
+    noStroke();
+    rect(meX+185*p, meY+249*p, 30*p, 23*p);//Neck
+    fill(4, 21, 61);
+    arc(meX+199*p, meY+289*p, 104*p, 51*p, 182, 363);//Shirt
+    fill(250, 198, 125);
+    arc(meX+200*p, meY+262*p, 32*p, 33*p, 0, 180);//Collar area
+    
+    
+}; //function for drawing my head
+
+var drawMYFACE = function(meX, meY, h) {
+    
+    var p = h/100;
+    noStroke();
+    fill(0, 0, 0);
+    arc(meX+199*p, meY+177*p, 95*p, 89*p, 180, 360);//Hair
+    arc(meX+220*p, meY+149*p, 27*p, 27*p, 221, 403);//Braid
+    arc(meX+178*p, meY+149*p, 27*p, 27*p, 123, 305);//Braid
+    fill(255, 255, 255);
+    stroke(0, 0, 0);
+    ellipse( meX+179*p, meY+194*p, 29*p, 13*p);//Eyeball
+    ellipse( meX+221*p, meY+194*p, 29*p, 13*p);//Eyeball
+    noStroke();
+    fill(250, 198, 125);
+    rect(meX+183*p, meY+179*p, 27*p, 10*p);//Rectangle make eyes halfway open
+    stroke(0, 0, 0);
+    line(meX+165*p, meY+189*p, meX+233*p, meY+189*p);//Line to emphasize half open eyes
+    fill(0, 0, 0);
+    ellipse(meX+179*p, meY+195*p, 10*p, 10*p);//Pupil
+    ellipse(meX+221*p, meY+195*p, 10*p, 10*p);//Pupil
+    fill(240, 104, 104);
+    noStroke();
+    ellipse(meX+200*p, meY+240*p, 30*p, 14*p);//Lips
+    fill(250, 198, 125);
+    fill(255, 255, 255);
+    arc(meX+200*p, meY+239*p, 32*p, 12*p, -1, 181);//Teeth
+    fill(250, 198, 125);
+    rect(meX+198*p, meY+194*p, 19*p, 10*p);//rectangle to split line apart
+    fill(250, 198, 125);
+    rect(meX+200*p, meY+155*p, 2*p, 46*p);//Hair split
+
+}; //function for drawing my face
+
+var drawME = function(meX, meY, h) {
+    drawMYHEAD(meX, meY, h);
+    drawMYFACE(meX, meY, h);
+    
+}; //variable for drawing both my head and my face
+
+var Button = function(config) {
+    this.x = config.x || 160;
+    this.y = config.y || 292;
+    this.width = config.width || 70;
+    this.height = config.height || 40;
+    this.radius = config.radius || 10;
+    this.label = config.label || "Click Here!";
+    this.onClick = config.onClick || function(){};
+}; //constructor function for drawing button class
+
+Button.prototype.draw = function(color) {
+    fill(this.color);
+    strokeWeight(5);
+    rect(this.x, this.y, this.width, this.height, this.radius);
+    fill(0, 0, 0);
+    textAlign(CENTER);
+    text(this.label, this.x, this.y + 5); 
+}; //draw function for drawing buttons
+
+Button.prototype.mouseIsInside = function() {
+    return mouseX > this.x - 32 &&
+            mouseX < (this.x + this.width) &&
+            mouseY > this.y - 20 &&
+            mouseY < (this.y + this.height);
+}; //mouseIsInside function for checking if mouse is inside buttons
+
+Button.prototype.handleMouseClick = function() {
+    if (this.mouseIsInside()) {
+        this.onClick();
+    }
+}; //variable for checking if mouse is clicked
+
+Bitmoji.prototype.draw = function() {
+    strokeWeight(1);
+    this.y = constrain(this.y, -50, height-87);
+    //image(this.img, this.x, this.y, 40, 40);
+    drawME(this.x - 55, this.y, 30);
+}; //draw function for drawing bitmoji
+
+Bitmoji.prototype.hop = function() {
+    this.img = getImage("creatures/Hopper-Jumping");
+    this.y -= 5;
+}; //function for changing y of bitmoji
+
+Bitmoji.prototype.fall = function() {
+    this.img = getImage("creatures/Hopper-Happy");
+    this.y += 5;
+}; //function for changing y of bitmoji
+
+Bitmoji.prototype.checkForStickGrab = function(Car) {
+    if ((Car.x >= this.x && Car.x <= (this.x + 40)) &&
+        (Car.y >= this.y + 30 && Car.y <= (this.y + 40))) {
+        Car.y = 1000;
+        score--;
+    }
+}; //variable for checking if the car hits the bitmoji
+
+Bitmoji.prototype.checkforbitmojiAtTop = function(Bitmoji) {
+    if (this.y <= -35 && addscore) 
+    {
+        addscore = false;
+    }
+}; //function for checking if botmoji crossed the street once
+
+Bitmoji.prototype.checkforbitmojiAtBottom = function(Bitmoji) {
+    if (this.y >= 250 && !addscore) 
+    {
+        score = score + 2;
+        addscore = true;
+    }
+}; //function for checking if bitmoji crosses street down and back
+
+car.prototype.draw = function() {
+
+    fill(89, 71, 0);
+    rectMode(CENTER);
+    noStroke();
+    fill(255, 0, 0);
+    ellipse(this.x+2, this.y-5, 32, 19);
+    rect(this.x, this.y, 43, 10, 10);
+    fill(8, 5, 5);
+    ellipse(this.x + 8, this.y + 7, 10, 10);
+    ellipse(this.x + -8, this.y + 7, 10, 10);
+    fill(202, 247, 246);
+    rect(this.x + 2, this.y + -8, 23, 10, 15);
+    fill(255, 238, 0);
+    ellipse(this.x + -18, this.y + -1, 7, 6);
+    stroke(0, 0, 0);
+    line(this.x + 4, this.y + 4, this.x + 4, this.y + -15);
+    
+}; //draw function for drawing cars
+
+var bitmoji = new Bitmoji(200, 300); //new bitmoji which is the character of the game
+
+for (var i = 0; i < numCars; i++) {  
+    Cars.push(new car(random(50, 350), i* -300 ));
+} //for loop for drawing 100 cars
+
+var resumeButton = new Button({
+    x: 203,
+    y: 30,
+    label: "Resume",
+    onClick: function() {
+        gamePaused = false;
+    }
+}); //resume button to unpause game 
+
+var pauseButton = new Button({
+    x: 312,
+    y: 30,
+    label: " Pause ",
+    onClick: function() {
+        gamePaused = true;
+        resumeButton.draw();
+    }
+});  //pause button to stop car motion
+
+var game = function() {
+    
+    background(186, 217, 255);
+    
+    fill(61, 58, 57);
+    
+    if (gamePaused === false) {
+    
+    for (var i = 0; i < Cars.length; i++) {
+        Cars[i].draw();
+        bitmoji.checkForStickGrab(Cars[i]);
+        Cars[i].y += carSpeed;
+    }
+    
+    }
+    
+    bitmoji.checkforbitmojiAtTop();
+    bitmoji.checkforbitmojiAtBottom();
+    
+    textSize(18);
+    text("Score: " + score, 45, 30);
+    text("Car Speed: " + carSpeed + "mph", 80, 50);
+    
+    if (keyIsPressed && key.code === 119) 
+    {
+        bitmoji.hop();
+    } 
+    else  if (keyIsPressed && key.code === 115)
+    {
+        bitmoji.fall();
+    }
+    
+    if (gamePaused === true) {
+        resumeButton.draw();
+        currentScene = 3;
+    }
+    
+    
+    pauseButton.draw();
+    
+    bitmoji.draw();
+    
+}; //function responsible for the entire game
+
+rectMode(CENTER);
+var playButton = new Button({
+    x: 204,
+    y: 357,
+    label: "Play",
+    onClick: function()  
+    {
+        draw = function() {
+            game();
+        };
+        currentScene = 2;
+    }
+}); //variable for drawing the play buttona t splashscreen
+
+mouseClicked = function() {
+    pauseButton.handleMouseClick();
+    resumeButton.handleMouseClick();
+    playButton.handleMouseClick();
+}; //mouseclicked function to execute onClicks
+
+var splashScreen = function() {
+    currentScene = 1;
+    background(108, 103, 207);
+    textSize(20);
+    text("CROSSING ROAD, CLICK TO PLAY!!!", 39, 100);
+    drawME(10, 10, 96);
+    fill(255, 255, 255);
+    text("Game and Animation by Angel Castano", 32, 320);
+    playButton.draw();
+}; //function for drawing splashscreen
+
+splashScreen(); //draws splashscreen
