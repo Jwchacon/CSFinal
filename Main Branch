@@ -1,6 +1,6 @@
 var score = 0; //variable to keep track of score
-var numCars = 100; //Variable for number of cars that pass on the screen
-var carSpeed = round(random(1, 10)); //Variable for random speed input for cars
+var numLogs = 100; //Variable for number of logs that pass on the screen
+var logSpeed = round(random(1, 10)); //Variable for random speed input for logs
 var currentScene; //Variable for keeping track of scene
 var gamePaused = false; //variable for keeping track of whether game is paused or not
 var addscore = true; //variable for knowing when to add to score
@@ -8,13 +8,13 @@ var Bitmoji = function(x, y) {
     this.x = x;
     this.y = y;
     this.img = getImage("creatures/Hopper-Happy");
-    this.Cars = 0;
+    this.Logs = 0;
 }; //constructor  function for bitmoji
-var Cars = []; //array for pushing new cars into it
-var car = function(x, y) {
+var Logs = []; //array for pushing new logs into it
+var logg = function(x, y) {
     this.x = x;
     this.y = y;
-};//Constructor function for cars
+};//Constructor function for logs
 
 var drawMYHEAD = function(meX, meY, h) {
     
@@ -123,13 +123,13 @@ Bitmoji.prototype.fall = function() {
     this.y += 5;
 }; //function for changing y of bitmoji
 
-Bitmoji.prototype.checkForStickGrab = function(Car) {
-    if ((Car.x >= this.x && Car.x <= (this.x + 40)) &&
-        (Car.y >= this.y + 30 && Car.y <= (this.y + 40))) {
-        Car.y = 1000;
+Bitmoji.prototype.checkForStickGrab = function(log) {
+    if ((log.x >= this.x && log.x <= (this.x + 40)) &&
+        (log.y >= this.y + 30 && log.y <= (this.y + 40))) {
+        log.y = 1000;
         score--;
     }
-}; //variable for checking if the car hits the bitmoji
+}; //variable for checking if the log hits the bitmoji
 
 Bitmoji.prototype.checkforbitmojiAtTop = function(Bitmoji) {
     if (this.y <= -35 && addscore) 
@@ -146,31 +146,21 @@ Bitmoji.prototype.checkforbitmojiAtBottom = function(Bitmoji) {
     }
 }; //function for checking if bitmoji crosses street down and back
 
-car.prototype.draw = function() {
+logg.prototype.draw = function() {
 
-    fill(89, 71, 0);
-    rectMode(CENTER);
-    noStroke();
-    fill(255, 0, 0);
-    ellipse(this.x+2, this.y-5, 32, 19);
-    rect(this.x, this.y, 43, 10, 10);
-    fill(8, 5, 5);
-    ellipse(this.x + 8, this.y + 7, 10, 10);
-    ellipse(this.x + -8, this.y + 7, 10, 10);
-    fill(202, 247, 246);
-    rect(this.x + 2, this.y + -8, 23, 10, 15);
-    fill(255, 238, 0);
-    ellipse(this.x + -18, this.y + -1, 7, 6);
-    stroke(0, 0, 0);
-    line(this.x + 4, this.y + 4, this.x + 4, this.y + -15);
+    fill(66, 42, 0);
+    rect(this.x + 2, this.y + 2, 30, 10);
+    ellipse(this.x + 18, this.y + 2, 10, 10);
+    ellipse(this.x - 12, this.y + 2, 10, 10);
+    line(this.x + 2, this.y + 2, this.x + 10, this.y + 10);
     
-}; //draw function for drawing cars
+}; //draw function for drawing logs
 
 var bitmoji = new Bitmoji(200, 300); //new bitmoji which is the character of the game
 
-for (var i = 0; i < numCars; i++) {  
-    Cars.push(new car(random(50, 350), i* -300 ));
-} //for loop for drawing 100 cars
+for (var i = 0; i < numLogs; i++) {  
+    Logs.push(new logg(random(50, 350), i* -300 ));
+} //for loop for drawing 100 logs
 
 var resumeButton = new Button({
     x: 203,
@@ -189,7 +179,7 @@ var pauseButton = new Button({
         gamePaused = true;
         resumeButton.draw();
     }
-});  //pause button to stop car motion
+});  //pause button to stop log motion
 
 var game = function() {
     
@@ -199,10 +189,10 @@ var game = function() {
     
     if (gamePaused === false) {
     
-    for (var i = 0; i < Cars.length; i++) {
-        Cars[i].draw();
-        bitmoji.checkForStickGrab(Cars[i]);
-        Cars[i].y += carSpeed;
+    for (var i = 0; i < Logs.length; i++) {
+        Logs[i].draw();
+        bitmoji.checkForStickGrab(Logs[i]);
+        Logs[i].y += logSpeed;
     }
     
     }
@@ -212,7 +202,7 @@ var game = function() {
     
     textSize(18);
     text("Score: " + score, 45, 30);
-    text("Car Speed: " + carSpeed + "mph", 80, 50);
+    text("log Speed: " + logSpeed + "mph", 80, 50);
     
     if (keyIsPressed && key.code === 119) 
     {
@@ -247,7 +237,7 @@ var playButton = new Button({
         };
         currentScene = 2;
     }
-}); //variable for drawing the play buttona t splashscreen
+}); //variable for drawing the play button at splashscreen
 
 mouseClicked = function() {
     pauseButton.handleMouseClick();
