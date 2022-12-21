@@ -1,6 +1,6 @@
 
 
-var level = 0;
+var level = 1;
 var lives=3;
 var numLogs = 75;
 var currentScene = 0; //0=splash screen, 1=game
@@ -153,4 +153,3 @@ draw = function() {
 if(currentScene===0){drawScene1();}
 else if(currentScene===1){drawScene2();}
 };
-
